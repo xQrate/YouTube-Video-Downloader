@@ -5,6 +5,7 @@ from tkinter import *
 from tkinter import messagebox
 
 # Создаем главное окно
+
 root = Tk()
 root.title("YouTube Video Downloader")
 root.geometry("600x300")

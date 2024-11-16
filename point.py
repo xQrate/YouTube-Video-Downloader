@@ -5,7 +5,6 @@ from tkinter import *
 from tkinter import messagebox
 
 # Создаем главное окно
-
 root = Tk()
 root.title("YouTube Video Downloader")
 root.geometry("600x300")
@@ -19,12 +18,19 @@ def download():
     if not link:
         messagebox.showerror("Ошибка", "Пожалуйста, введите ссылку на видео.")
         return
-    download_folder = os.path.join(os.path.expanduser("~"), "Downloads")
     
+    # Папка для сохранения видео (в той же папке, что и скрипт)
+    current_folder = os.path.dirname(os.path.abspath(__file__))  # Текущая директория скрипта
+    download_folder = os.path.join(current_folder, "YouTube_Videos")
+    
+    # Если папки нет, создаём её
+    if not os.path.exists(download_folder):
+        os.makedirs(download_folder)
+
     # Настройки для yt-dlp
     ydl_opts = {
         "format": "best",
-        "outtmpl": os.path.join(download_folder, "%(title)s.%(ext)s")
+        "outtmpl": os.path.join(download_folder, "%(title)s.%(ext)s")  # Сохраняем в папку "YouTube_Videos"
     }
     
     # Попытки скачивания
@@ -73,9 +79,9 @@ btn1 = Button(root, text="Скачать", font=('Arial', 10, 'bold'), bd=4, com
 btn1.place(x=330, y=130)
 
 btn2 = Button(root, text="Очистить", font=('Arial', 10, 'bold'), bd=4, command=reset)
-btn2.place(x=160, y=190)
+btn2.place(x=180, y=220)
 
 btn3 = Button(root, text="Выход", font=('Arial', 10, 'bold'), bd=4, command=Exit)
-btn3.place(x=250, y=190)
+btn3.place(x=280, y=220)
 
 root.mainloop()

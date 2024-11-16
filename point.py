@@ -51,7 +51,7 @@ def download():
         return
     
     # Папка для сохранения видео (в той же папке, что и скрипт)
-    download_folder = os.path.join(current_folder, "YouTube_Videos")
+    download_folder = os.path.join("F:\\YoutubeDown", "YouTube_Videos")
     
     # Если папки нет, создаём её
     if not os.path.exists(download_folder):

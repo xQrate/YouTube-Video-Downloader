@@ -64,7 +64,7 @@ def download():
     }
     
     # Попытки скачивания
-    retries = 3  # Максимальное количество попыток
+    retries = 10  # Максимальное количество попыток
     for attempt in range(retries):
         try:
             with yt_dlp.YoutubeDL(ydl_opts) as ydl:

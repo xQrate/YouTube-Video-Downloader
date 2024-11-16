@@ -1,17 +1,21 @@
 from cx_Freeze import setup, Executable
 import sys
 
-# Указываем базу для создания GUI приложения
+# Настройки сборки
+build_options = {
+    "packages": ["tkinter", "os", "yt_dlp", "time", "socket", "threading", "sys"],
+    "excludes": [],
+}
+
 base = None
 if sys.platform == "win32":
-    base = "Win32GUI"
+    base = "Win32GUI"  # Используется для GUI-приложений
 
-# Указываем имя скрипта, который нужно собрать
-executables = [Executable("point.py", base=base, target_name="start.exe")]
-
+# Конфигурация
 setup(
-    name="YouTube Downloader",
+    name="MyApp",
     version="1.0",
-    description="Скачивание видео с YouTube",
-    executables=executables,
+    description="YouTube Video Downloader",
+    options={"build_exe": build_options},
+    executables=[Executable("point.py", base=base)],  # Укажите ваш главный файл
 )

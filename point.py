@@ -3,6 +3,7 @@ import os
 import time
 from tkinter import *
 from tkinter import messagebox
+import threading  # Импортируем модуль для многозадачности
 
 # Создаем главное окно
 root = Tk()
@@ -65,6 +66,11 @@ def reset():
 def Exit():
     root.destroy()
 
+# Функция для запуска скачивания в отдельном потоке
+def start_download_thread():
+    download_thread = threading.Thread(target=download)
+    download_thread.start()
+
 # Заголовок формы
 lb = Label(root, text="---Загрузка видео с YouTube---", font=('Arial', 15, 'bold'), bg='#D3D3D3')
 lb.pack(pady=15)
@@ -75,7 +81,7 @@ lb1.place(x=10, y=80)
 En1 = Entry(root, textvariable=link1, font=('Arial', 15, 'bold'), width=30)
 En1.place(x=230, y=80)
 
-btn1 = Button(root, text="Скачать", font=('Arial', 10, 'bold'), bd=4, command=download)
+btn1 = Button(root, text="Скачать", font=('Arial', 10, 'bold'), bd=4, command=start_download_thread)
 btn1.place(x=330, y=130)
 
 btn2 = Button(root, text="Очистить", font=('Arial', 10, 'bold'), bd=4, command=reset)

@@ -1,5 +1,6 @@
 import yt_dlp
 import os
+import time
 from tkinter import *
 from tkinter import messagebox
 
@@ -11,29 +12,43 @@ root.config(bg="#D3D3D3")
 
 link1 = StringVar()
 
-# Функция для скачивания видео
+# Функция для скачивания видео с повторными попытками
 def download():
     link = link1.get()
     if not link:
         messagebox.showerror("Ошибка", "Пожалуйста, введите ссылку на видео.")
         return
-    try:
-        # Получаем путь к папке "Загрузки" текущего пользователя
-        download_folder = os.path.join(os.path.expanduser("~"), "Downloads")
-
-        # Указываем настройки для yt-dlp
-        ydl_opts = {
-            "format": "best",  # Скачиваем лучшее качество
-            "outtmpl": os.path.join(download_folder, "%(title)s.%(ext)s")  # Сохраняем файл в папку "Загрузки"
-        }
-
-        # Скачиваем видео
-        with yt_dlp.YoutubeDL(ydl_opts) as ydl:
-            ydl.download([link])
-
-        messagebox.showinfo("Успех", f"Видео успешно загружено в папку: {download_folder}")
-    except Exception as e:
-        messagebox.showerror("Ошибка", f"Произошла ошибка: {e}")
+    download_folder = os.path.join(os.path.expanduser("~"), "Downloads")
+    
+    # Настройки для yt-dlp
+    ydl_opts = {
+        "format": "best",
+        "outtmpl": os.path.join(download_folder, "%(title)s.%(ext)s")
+    }
+    
+    # Попытки скачивания
+    retries = 3  # Максимальное количество попыток
+    for attempt in range(retries):
+        try:
+            with yt_dlp.YoutubeDL(ydl_opts) as ydl:
+                ydl.download([link])  # Попытка скачать видео
+            messagebox.showinfo("Успех", f"Видео успешно загружено в папку: {download_folder}")
+            return
+        except yt_dlp.utils.DownloadError as e:
+            error_msg = f"Ошибка при скачивании: {e}"
+            messagebox.showerror("Ошибка", error_msg)
+            return
+        except ConnectionResetError as e:
+            # Если ошибка 10054, пробуем еще раз
+            if attempt < retries - 1:
+                messagebox.showwarning("Предупреждение", f"Попытка {attempt + 1} из {retries}. Соединение прервано. Повторная попытка...")
+                time.sleep(2)  # Ожидание 2 секунды перед повтором
+            else:
+                messagebox.showerror("Ошибка", "Превышено количество попыток подключения.")
+                return
+        except Exception as e:
+            messagebox.showerror("Ошибка", f"Произошла ошибка: {e}")
+            return
 
 # Функция для очистки поля ввода
 def reset():
@@ -61,26 +76,5 @@ btn2.place(x=160, y=190)
 
 btn3 = Button(root, text="Выход", font=('Arial', 10, 'bold'), bd=4, command=Exit)
 btn3.place(x=250, y=190)
-
-lb = Label(root, text="By RIKA", font=('Arial', 15, 'bold'), bg='#D3D3D3')
-lb.place(x=500, y=240)
-
-def animate_text():
-    # Получаем текущую позицию x
-    x = lb.winfo_x()
-
-    # Если текст не вышел за пределы окна, продолжаем анимацию
-    if x < 600:
-        lb.place(x=x + 5, y=240)
-        # Запускаем анимацию снова через 50 миллисекунд
-        root.after(50, animate_text)
-    else:
-        # Если текст ушел за пределы, возвращаем его на начало
-        lb.place(x=-100, y=240)
-        root.after(50, animate_text)
-        
-# Запускаем анимацию
-animate_text()
-
 
 root.mainloop()

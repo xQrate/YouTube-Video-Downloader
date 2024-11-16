@@ -7,7 +7,7 @@ if sys.platform == "win32":
     base = "Win32GUI"
 
 # Указываем имя скрипта, который нужно собрать
-executables = [Executable("point.py", base=base, target_name="point.exe")]
+executables = [Executable("point.py", base=base, target_name="start.exe")]
 
 setup(
     name="YouTube Downloader",

@@ -3,7 +3,18 @@ import os
 import time
 from tkinter import *
 from tkinter import messagebox
-import threading  # Импортируем модуль для многозадачности
+import threading
+import sys
+
+# Устанавливаем путь к yt-dlp в зависимости от того, где мы находимся (при запуске через .exe)
+if getattr(sys, 'frozen', False):
+    # Если программа запущена как .exe
+    current_folder = os.path.dirname(sys.executable)  # Папка с .exe файлом
+else:
+    # Если программа запущена из исходного кода
+    current_folder = os.path.dirname(os.path.abspath(__file__))  # Текущая директория скрипта
+
+yt_dlp_path = os.path.join(current_folder, 'yt-dlp')  # Путь к yt-dlp
 
 # Создаем главное окно
 root = Tk()
@@ -21,7 +32,6 @@ def download():
         return
     
     # Папка для сохранения видео (в той же папке, что и скрипт)
-    current_folder = os.path.dirname(os.path.abspath(__file__))  # Текущая директория скрипта
     download_folder = os.path.join(current_folder, "YouTube_Videos")
     
     # Если папки нет, создаём её
@@ -31,7 +41,9 @@ def download():
     # Настройки для yt-dlp
     ydl_opts = {
         "format": "best",
-        "outtmpl": os.path.join(download_folder, "%(title)s.%(ext)s")  # Сохраняем в папку "YouTube_Videos"
+        "outtmpl": os.path.join(download_folder, "%(title)s.%(ext)s"),  # Сохраняем в папку "YouTube_Videos"
+        "progerss_hooks": [],  # Если необходимо, добавьте обработку прогресса
+        "exec_cmds": [yt_dlp_path]  # Добавьте команду для использования yt-dlp
     }
     
     # Попытки скачивания

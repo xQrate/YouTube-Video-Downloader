@@ -1,6 +1,7 @@
 import yt_dlp
 import os
 import time
+import socket
 from tkinter import *
 from tkinter import messagebox
 import threading
@@ -44,10 +45,11 @@ def download():
 
     # Настройки для yt-dlp
     ydl_opts = {
-        "format": "best",
-        "outtmpl": os.path.join(download_folder, "%(title)s.%(ext)s"),  # Сохраняем в папку "YouTube_Videos"
+        "format": "best",  # Ограничиваем до 720p
+        "outtmpl": os.path.join(download_folder, "%(title)s.%(ext)s"),
+        "socket_timeout": 60,
     }
-    
+
     # Попытки скачивания
     retries = 6  # Максимальное количество попыток
     for attempt in range(retries):

@@ -21,21 +21,31 @@ yt_dlp_path = os.path.join(current_folder, 'yt-dlp')  # Путь к yt-dlp
 # Создаем главное окно
 root = Tk()
 root.title("YouTube Video Downloader")
-root.geometry("600x300")
+root.geometry("600x400")
 root.config(bg="#D3D3D3")
 
 link1 = StringVar()
+proxy_address = StringVar()
+proxy_port = StringVar()
 loading_label = None  # Глобальная переменная для анимации текста
 animation_running = False
 
 # Функция для скачивания видео с повторными попытками
 def download():
     link = link1.get()
+    proxy_addr = proxy_address.get()
+    proxy_prt = proxy_port.get()
+
     if not link:
         messagebox.showerror("Ошибка", "Пожалуйста, введите ссылку на видео.")
         stop_loading_animation()
         return
-    
+
+    if proxy_addr and proxy_prt:
+        proxy = f"http://{proxy_addr}:{proxy_prt}"
+    else:
+        proxy = None
+
     # Папка для сохранения видео (в той же папке, что и скрипт)
     download_folder = os.path.join("YouTube_Videos")
     
@@ -49,6 +59,9 @@ def download():
         "outtmpl": os.path.join(download_folder, "%(title)s.%(ext)s"),
         "socket_timeout": 60,
     }
+
+    if proxy:
+        ydl_opts["proxy"] = proxy
 
     # Попытки скачивания
     retries = 6  # Максимальное количество попыток
@@ -78,9 +91,11 @@ def download():
             stop_loading_animation()
             return
 
-# Функция для очистки поля ввода
+# Функция для очистки полей ввода
 def reset():
     link1.set("")
+    proxy_address.set("")
+    proxy_port.set("")
 
 # Функция для выхода из приложения
 def Exit():
@@ -97,7 +112,7 @@ def start_loading_animation():
     global loading_label, animation_running
     if not animation_running:
         loading_label = Label(root, text="Загрузка", font=('Arial', 15, 'bold'), bg='#D3D3D3')
-        loading_label.pack(pady=110)
+        loading_label.pack(pady=160)
         animation_running = True
         animate_loading_dots()
 
@@ -124,19 +139,31 @@ def animate_loading_dots():
 lb = Label(root, text="---Загрузка видео с YouTube---", font=('Arial', 15, 'bold'), bg='#D3D3D3')
 lb.pack(pady=15)
 
-lb1 = Label(root, text="Ссылка на видео :", font=('Arial', 15, 'bold'), bg='#D3D3D3')
+lb1 = Label(root, text="Ссылка на видео:", font=('Arial', 15, 'bold'), bg='#D3D3D3')
 lb1.place(x=10, y=80)
 
 En1 = Entry(root, textvariable=link1, font=('Arial', 15, 'bold'), width=30)
 En1.place(x=230, y=80)
 
+lb2 = Label(root, text="Прокси сервер:", font=('Arial', 15, 'bold'), bg='#D3D3D3')
+lb2.place(x=10, y=130)
+
+proxy_addr_entry = Entry(root, textvariable=proxy_address, font=('Arial', 15, 'bold'), width=15)
+proxy_addr_entry.place(x=230, y=130)
+
+lb3 = Label(root, text="Порт:", font=('Arial', 15, 'bold'), bg='#D3D3D3')
+lb3.place(x=400, y=130)
+
+proxy_port_entry = Entry(root, textvariable=proxy_port, font=('Arial', 15, 'bold'), width=8)
+proxy_port_entry.place(x=460, y=130)
+
 btn1 = Button(root, text="Скачать", font=('Arial', 10, 'bold'), bd=4, command=start_download_thread)
-btn1.place(x=330, y=130)
+btn1.place(x=330, y=180)
 
 btn2 = Button(root, text="Очистить", font=('Arial', 10, 'bold'), bd=4, command=reset)
-btn2.place(x=180, y=220)
+btn2.place(x=180, y=300)
 
 btn3 = Button(root, text="Выход", font=('Arial', 10, 'bold'), bd=4, command=Exit)
-btn3.place(x=280, y=220)
+btn3.place(x=280, y=300)
 
 root.mainloop()

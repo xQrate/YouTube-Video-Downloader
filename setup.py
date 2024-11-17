@@ -3,7 +3,7 @@ import sys
 
 # Настройки сборки
 build_options = {
-    "packages": ["tkinter", "os", "yt_dlp", "time", "socket", "threading", "sys"],
+    "packages": ["tkinter", "os", "yt_dlp", "time", "threading", "sys"],
     "excludes": [],
 }
 

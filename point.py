@@ -1,7 +1,6 @@
 import yt_dlp
 import os
 import time
-import socket
 from tkinter import *
 from tkinter import messagebox
 import threading
@@ -28,22 +27,8 @@ link1 = StringVar()
 loading_label = None  # Глобальная переменная для анимации текста
 animation_running = False
 
-# Функция для проверки подключения к интернету
-def check_internet():
-    try:
-        # Попытка подключения к Google DNS
-        socket.create_connection(("8.8.8.8", 53), timeout=5)
-        return True
-    except OSError:
-        return False
-
 # Функция для скачивания видео с повторными попытками
 def download():
-    if not check_internet():
-        messagebox.showerror("Ошибка", "Нет подключения к интернету. Проверьте соединение и попробуйте снова.")
-        stop_loading_animation()
-        return
-
     link = link1.get()
     if not link:
         messagebox.showerror("Ошибка", "Пожалуйста, введите ссылку на видео.")
@@ -51,7 +36,7 @@ def download():
         return
     
     # Папка для сохранения видео (в той же папке, что и скрипт)
-    download_folder = os.path.join("F:\\YoutubeDown", "YouTube_Videos")
+    download_folder = os.path.join("YouTube_Videos")
     
     # Если папки нет, создаём её
     if not os.path.exists(download_folder):
@@ -64,7 +49,7 @@ def download():
     }
     
     # Попытки скачивания
-    retries = 10  # Максимальное количество попыток
+    retries = 6  # Максимальное количество попыток
     for attempt in range(retries):
         try:
             with yt_dlp.YoutubeDL(ydl_opts) as ydl:

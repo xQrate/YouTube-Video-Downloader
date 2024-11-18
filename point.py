@@ -7,7 +7,6 @@ from tkinter import messagebox
 import threading
 import sys
 import requests
-from bs4 import BeautifulSoup  # Для парсинга сайтов с прокси
 import speedtest
 
 # Устанавливаем путь к yt-dlp в зависимости от того, где мы находимся (при запуске через .exe)
@@ -31,49 +30,19 @@ loading_label = None  # Глобальная переменная для ани�
 animation_running = False
 
 # Функция для получения списка бесплатных прокси
-def fetch_free_proxies():
-    try:
-        url = "https://free-proxy-list.net/"
-        response = requests.get(url, timeout=10)
-        soup = BeautifulSoup(response.text, "html.parser")
-        proxy_table = soup.find("table", id="proxylisttable")
-        proxies = []
 
-        # Извлечение IP и порта из таблицы
-        for row in proxy_table.tbody.find_all("tr"):
-            columns = row.find_all("td")
-            if columns[4].text == "elite proxy" and columns[6].text == "yes":  # HTTPS поддержка
-                ip = columns[0].text
-                port = columns[1].text
-                proxies.append((ip, port))
-
-        return proxies
-    except Exception as e:
-        messagebox.showerror("Ошибка", f"Не удалось получить прокси: {e}")
-        return []
-
-# Функция для автоматической настройки прокси
-def auto_configure_proxy():
-    proxies = fetch_free_proxies()
-    if proxies:
-        proxy_address.set(proxies[0][0])  # Устанавливаем первый доступный прокси
-        proxy_port.set(proxies[0][1])
-        messagebox.showinfo("Прокси", f"Установлен прокси: {proxies[0][0]}:{proxies[0][1]}")
-    else:
-        messagebox.showwarning("Прокси", "Не удалось найти рабочий прокси.")
 
 # Функция для скачивания видео с повторными попытками
 def download():
     link = link1.get()
-    proxy_addr = proxy_address.get()
-    proxy_prt = proxy_port.get()
+ 
 
     if not link:
         messagebox.showerror("Ошибка", "Пожалуйста, введите ссылку на видео.")
         stop_loading_animation()
         return
 
-    proxy = f"http://{proxy_addr}:{proxy_prt}" if proxy_addr and proxy_prt else None
+  
 
     # Папка для сохранения видео (в той же папке, что и скрипт)
     download_folder = os.path.join("YouTube_Videos")
@@ -88,9 +57,6 @@ def download():
         "outtmpl": os.path.join(download_folder, "%(title)s.%(ext)s"),
         "socket_timeout": 100,
     }
-
-    if proxy:
-        ydl_opts["proxy"] = proxy
 
     # Попытки скачивания
     retries = 6  # Максимальное количество попыток
@@ -221,66 +187,8 @@ def log_download(link, folder):
     except Exception as e:
         log_message(f"Ошибка при записи в журнал: {e}")
 
-# Обновляем функцию download для интеграции новых возможностей
-def download():
-    link = link1.get()
-    proxy_addr = proxy_address.get()
-    proxy_prt = proxy_port.get()
 
-    if not link:
-        messagebox.showerror("Ошибка", "Пожалуйста, введите ссылку на видео.")
-        stop_loading_animation()
-        return
 
-    proxy = f"http://{proxy_addr}:{proxy_prt}" if proxy_addr and proxy_prt else None
-
-    # Папка для сохранения видео (в той же папке, что и скрипт)
-    download_folder = os.path.join("YouTube_Videos")
-
-    # Если папки нет, создаём её
-    if not os.path.exists(download_folder):
-        os.makedirs(download_folder)
-
-    # Настройки для yt-dlp
-    ydl_opts = {
-        "format": "best",  
-        "outtmpl": os.path.join(download_folder, "%(title)s.%(ext)s"),
-        "socket_timeout": 100,
-    }
-
-    if proxy:
-        ydl_opts["proxy"] = proxy
-
-    # Попытки скачивания
-    retries = 6  # Максимальное количество попыток
-    for attempt in range(retries):
-        try:
-            log_message(f"Попытка {attempt + 1}: Загрузка видео {link}...")
-            with yt_dlp.YoutubeDL(ydl_opts) as ydl:
-                ydl.download([link])  # Попытка скачать видео
-            messagebox.showinfo("Успех", f"Видео успешно загружено в папку: {download_folder}")
-            log_download(link, download_folder)
-            stop_loading_animation()
-            return
-        except yt_dlp.utils.DownloadError as e:
-            error_msg = f"Ошибка при скачивании: {e}"
-            log_message(error_msg)
-            stop_loading_animation()
-            return
-        except ConnectionResetError as e:
-            if attempt < retries - 1:
-                log_message(f"Попытка {attempt + 1} не удалась. Повторная попытка...")
-                time.sleep(2)  # Ожидание 2 секунды перед повтором
-            else:
-                log_message("Превышено количество попыток подключения.")
-                messagebox.showerror("Ошибка", "Превышено количество попыток подключения.")
-                stop_loading_animation()
-                return
-        except Exception as e:
-            log_message(f"Произошла ошибка: {e}")
-            messagebox.showerror("Ошибка", f"Произошла ошибка: {e}")
-            stop_loading_animation()
-            return
 
 # Добавляем виджет для журнала действий
 log_label = Label(root, text="Журнал действий:", font=('Arial', 12, 'bold'), bg='#D3D3D3')
